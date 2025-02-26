@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Remix</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #ff7f50, #6a5acd);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .animate-title {
+            animation: slideIn 1.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .input-box {
+            transition: transform 0.3s ease;
+        }
+
+        .recipe-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgb(0 0 0 / 20%);
+            transition: all 0.3s ease;
+        }
+
+        .recipe-card img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            object-fit: cover;
+            height: 200px;
+            transition: transform 0.3s ease;
+        }
+
+        .recipe-card h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .recipe-card p {
+            font-size: 1rem;
+        }
+
+        .recipe-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 40px rgb(0 0 0 / 30%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-8 min-h-screen flex flex-col justify-center items-center">
+        <h1 class="text-5xl font-extrabold mb-8 text-center animate-title">Recipe Remix</h1>
+        <div class="input-box bg-white bg-opacity-10 p-6 rounded-xl shadow-2xl backdrop-blur-md w-full max-w-md hover:scale-105">
+            <input id="ingredients" type="text" placeholder="Enter your ingredients (e.g., chicken, rice)" 
+                   class="w-full p-4 bg-transparent border-b-2 border-white text-white placeholder-gray-300 focus:outline-none focus:border-b-2 focus:border-yellow-500">
+            <button id="remixbtn" class="mt-6 w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-full font-semibold transition-all duration-300">
+                Remix It!
+            </button>
+        </div>
+        <div id="results" class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl"></div>
+    </div>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+        const recipes = [
+            { name: "Chicken Fried Rice", ingredients: ["chicken", "rice", "soy sauce"], image: "https://placehold.co/600x400/FFD700/000000?text=Chicken+Fried+Rice" },
+            { name: "Spicy Chicken Tacos", ingredients: ["chicken", "tortilla", "spices"], image: "https://placehold.co/600x400/FF4500/FFFFFF?text=Spicy+Chicken+Tacos" },
+            { name: "Rice Pudding", ingredients: ["rice", "milk", "sugar"], image: "https://placehold.co/600x400/FFB6C1/000000?text=Rice+Pudding" }
+        ];
+
+        document.getElementById('remixbtn').addEventListener('click', () => {
+            const input = document.getElementById('ingredients').value.toLowerCase().split(',').map(i => i.trim());
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+
+            const matches = recipes.filter(recipe => 
+                input.some(ing => recipe.ingredients.includes(ing))
+            );
+
+            if (matches.length > 0) {
+                matches.forEach((recipe, index) => {
+                    const card = document.createElement('div');
+                    card.classList.add('recipe-card', 'hover:translate-y-[-10px]', 'hover:rotate-2', 'hover:shadow-2xl');
+                    card.innerHTML = `<img src="${recipe.image}" alt="${recipe.name}" class="w-full mb-4 rounded-t-xl"><h3 class="text-2xl font-semibold">${recipe.name}</h3><p>${recipe.ingredients.join(', ')}</p>`;
+                    results.appendChild(card);
+
+                    gsap.from(card, {
+                        opacity: 0,
+                        y: 50,
+                        rotation: Math.random() * 20 - 10,
+                        duration: 0.8,
+                        delay: index * 0.2,
+                        ease: "back.out(1.7)"
+                    });
+                });
+            } else {
+                results.innerHTML = '<p class="text-center text-xl">No recipes found—get creative.</p>';
+                gsap.from(results.children[0], { opacity: 0, scale: 0.5, duration: 0.5 });
+            }
+
+            // Button animation
+            gsap.to('#remixbtn', { scale: 1.1, duration: 0.2, yoyo: true, repeat: 1 });
+        });
+
+        // Initial page load animation
+        gsap.from('.input-box', { opacity: 0, scale: 0.8, duration: 1, ease: "elastic.out(1, 0.5)" });
+    </script>
+</body>
+</html>
